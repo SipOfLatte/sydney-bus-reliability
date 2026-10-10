@@ -1,0 +1,9 @@
+# Collected data stays local; only the export from export.py is committed
+data/*
+!data/export/
+data/export/*.tmp
+.venv/
+__pycache__/
+.env
+.pytest_cache/
+.DS_Store

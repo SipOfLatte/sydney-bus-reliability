@@ -1,0 +1,7 @@
+gtfs-realtime-bindings
+pyarrow
+duckdb
+pandas
+streamlit
+truststore
+pytest
