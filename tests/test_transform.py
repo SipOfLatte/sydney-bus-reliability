@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import pytest
 from google.transit import gtfs_realtime_pb2 as gtfs_rt
 
+import pipeline as tfnsw  # "pipeline" is taken by the fixture below
 import quality
 import transform
 import warehouse
@@ -135,3 +136,20 @@ def test_rerunning_transform_is_idempotent(pipeline):
 def test_find_gaps_reports_only_long_stretches():
     t = [datetime(2026, 10, 10, 0, m, tzinfo=timezone.utc) for m in (0, 2, 4, 14, 16)]
     assert quality.find_gaps(t, max_gap=300) == [(t[2], t[3])]
+
+
+def test_download_stalling_midway_raises_api_error(monkeypatch):
+    # The poller only catches TfnswApiError, so anything else would stop collection
+    class StalledResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def read(self):
+            raise TimeoutError("The read operation timed out")
+
+    monkeypatch.setattr(tfnsw, "urlopen", lambda *a, **k: StalledResponse())
+    with pytest.raises(tfnsw.TfnswApiError):
+        tfnsw.fetch_live_bus_feed("key")

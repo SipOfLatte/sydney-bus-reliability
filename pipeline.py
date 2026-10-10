@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from http.client import HTTPException
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -52,6 +53,9 @@ def fetch_live_bus_feed(
         raise TfnswApiError(message) from exc
     except URLError as exc:
         raise TfnswApiError(f"Could not reach Transport for NSW API: {exc.reason}") from exc
+    # A connection can also drop or stall halfway through the download, after urlopen succeeded
+    except (OSError, HTTPException) as exc:
+        raise TfnswApiError(f"Download from Transport for NSW API failed: {exc!r}") from exc
 
 
 def main() -> int:
