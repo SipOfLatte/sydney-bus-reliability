@@ -4,7 +4,7 @@ How often do Sydney buses turn up on time, and where and when do they fall behin
 
 This project polls Transport for NSW's live bus feed every two minutes, reduces the arrival predictions to one row per bus arrival, and shows the results in a Streamlit dashboard.
 
-Live dashboard: [sydney-bus-reliability.streamlit.app](https://sydney-bus-reliability.streamlit.app)
+Live dashboard: [sydney-bus-reliability.streamlit.app](https://sydney-bus-reliability.streamlit.app) (if it's been idle, it can take up to a minute to wake up)
 
 ![Dashboard overview: on-time rate, early and late shares, and early and late arrivals by hour of day](docs/screenshots/overview.png)
 
