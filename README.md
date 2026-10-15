@@ -8,13 +8,21 @@ This project polls Transport for NSW's live bus feed every two minutes, reduces 
 
 ## Findings
 
-> These numbers are provisional. They come from the first 20 hours of collection (Friday 9 to Saturday 10 October 2026, about 490,000 arrivals) and will be replaced when collection finishes.
+The data covers almost six days, from 23:34 on Friday 9 October to 14:35 on Thursday 15 October 2026: 7.5 million bus arrivals across the NSW networks.
 
-About 72% of arrivals are on time, meaning no more than 1 minute early and no more than 5 minutes late. The median bus arrives about a minute behind the timetable.
+About 69% of arrivals are on time, meaning no more than 1 minute early and no more than 5 minutes late. The median bus arrives 1.2 minutes behind the timetable.
 
-Late buses are far more common than early ones. With the same 3-minute cut-off on both sides, buses are late about 4 times as often as they are early (23% against 6%). The official window suggests the opposite, 18% early against 11% late, because it counts a bus as early after 1 minute but late only after 5. [Why the on-time window is uneven](#why-the-on-time-window-is-uneven) explains the choice.
+Late buses are far more common than early ones. With the same 3-minute cut-off on both sides, buses are late 4.5 times as often as they are early (27% against 6%). The official window suggests the two are close, 17% early against 14% late, because it counts a bus as early after 1 minute but late only after 5. [Why the on-time window is uneven](#why-the-on-time-window-is-uneven) explains the choice.
 
-<!-- TODO: worst routes, worst hours, weekday vs weekend once there is a full week -->
+Sydney's metropolitan network is the least punctual of the large networks, with 68% of arrivals on time. The Hunter, Central Coast, Illawarra and Blue Mountains networks all sit between 78% and 83%. School buses do worse still at 60%, and a quarter of their arrivals are more than a minute early.
+
+Weekday peaks are where reliability drops. At 9am on weekdays, 20% of arrivals are more than 5 minutes late. The weekday afternoon is the least punctual time overall, mostly because buses run early: at 3pm only 57% of arrivals are on time and a quarter are early, and at 4pm 59% are on time. Weekends are barely different from weekdays (70% on time against 69%).
+
+Among routes with at least 2,000 observed arrivals:
+
+- 738 (Mount Druitt to Eastern Creek) and 889 (Macarthur to Menangle) were late about half the time, with median delays of 5.2 and 4.4 minutes.
+- 410 (Macquarie Park to Hurstville), the ninth busiest route in the data with 52,000 arrivals, was on time only 52% of the time.
+- 440 (Bondi Junction to Rozelle) has the opposite problem: 40% of its arrivals were more than a minute early.
 
 ## How it works
 
@@ -59,27 +67,34 @@ A bus counts as on time if it is no more than 1 minute early and no more than 5 
 
 With an uneven window, early % and late % can't be compared directly. The dashboard uses an even 3-minute cut-off whenever it compares early against late, and labels a route's main issue from its median delay.
 
-How much the cut-off matters (provisional):
+How much the cut-off matters:
 
 | Window | Early | On time | Late | Late ÷ early |
 |---|---|---|---|---|
-| Official (1 min early / 5 min late) | 17.8% | 71.7% | 10.5% | 0.6× |
-| Even ±1 min | 17.8% | 32.7% | 49.6% | 2.8× |
-| Even ±2 min | 9.8% | 55.9% | 34.4% | 3.5× |
-| Even ±3 min | 5.5% | 71.3% | 23.2% | 4.2× |
-| Even ±5 min | 1.8% | 87.7% | 10.5% | 5.9× |
+| Official (1 min early / 5 min late) | 17.4% | 69.0% | 13.6% | 0.8× |
+| Even ±1 min | 17.4% | 30.0% | 52.5% | 3.0× |
+| Even ±2 min | 10.1% | 51.7% | 38.2% | 3.8× |
+| Even ±3 min | 6.0% | 66.9% | 27.1% | 4.5× |
+| Even ±5 min | 2.3% | 84.1% | 13.6% | 6.0× |
 
 Late buses outnumber early ones under every even cut-off, and the ratio grows with the cut-off.
 
 ## Data quality
 
-From `python quality.py` (provisional):
+From `python quality.py`:
 
-The poller has not missed a poll since continuous collection began at 23:34 on Friday 9 October. The only gap in the raw data comes before that, between a one-off test fetch at 16:42 and the start of the poller.
+The poller saved 3,966 snapshots of each feed. After continuous collection began, it missed about 3 hours in total, all on the first weekend:
 
-The last prediction for a stop is made a median of 42 seconds before the bus gets there, and 90% are made within 101 seconds.
+- Saturday 10 October, 13:47 to 14:17 (29 minutes)
+- Saturday 10 October, 16:19 to 16:37 (19 minutes)
+- Saturday 10 October, 21:22 to 23:27 (2 hours). The poller crashed when a download stalled halfway through. It now logs the error and retries.
+- Sunday 11 October, 00:51 to 00:57 (6 minutes, trip updates only)
 
-46% of arrivals appear in two or more snapshots. For those, the predicted time moved by a median of 28 seconds between the first and last snapshot, and 21% moved by more than a minute.
+The report also shows a gap on Friday afternoon, between a one-off test fetch at 16:42 and the start of the poller at 23:34.
+
+The last prediction for a stop is made a median of 42 seconds before the bus gets there, and 90% are made within 102 seconds.
+
+46% of arrivals appear in two or more snapshots. For those, the predicted time moved by a median of 29 seconds between the first and last snapshot, and 22% moved by more than a minute.
 
 For 9% of arrivals, the last prediction was already in the past when the snapshot was taken. Most likely the feed was reporting the actual arrival time for those.
 
@@ -88,7 +103,8 @@ For 9% of arrivals, the last prediction was already in the past when the snapsho
 - Arrival times come from predictions, so they can be off by tens of seconds.
 - Weekend means Saturday and Sunday by Sydney time. Public holidays are not handled.
 - TfNSW labels some routes "Unknown Description"; the dashboard shows these as "Unclassified".
-- Collection covers about a week, so the results describe that week rather than long-term reliability.
+- Collection covers six days in October 2026, so the results describe that week rather than long-term reliability.
+- About 7,900 arrivals (0.1%) belong to routes missing from the static timetable. They have no route name or network, so the dashboard leaves them out.
 
 ## Running it yourself
 
