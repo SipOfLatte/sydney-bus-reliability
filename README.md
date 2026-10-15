@@ -4,7 +4,9 @@ How often do Sydney buses turn up on time, and where and when do they fall behin
 
 This project polls Transport for NSW's live bus feed every two minutes, reduces the arrival predictions to one row per bus arrival, and shows the results in a Streamlit dashboard.
 
-<!-- TODO: dashboard link + screenshot once deployed -->
+Live dashboard: [sydney-bus-reliability.streamlit.app](https://sydney-bus-reliability.streamlit.app)
+
+![Dashboard overview: on-time rate, early and late shares, and early and late arrivals by hour of day](docs/screenshots/overview.png)
 
 ## Findings
 
@@ -23,6 +25,16 @@ Among routes with at least 2,000 observed arrivals:
 - 738 (Mount Druitt to Eastern Creek) and 889 (Macarthur to Menangle) were late about half the time, with median delays of 5.2 and 4.4 minutes.
 - 410 (Macquarie Park to Hurstville), the ninth busiest route in the data with 52,000 arrivals, was on time only 52% of the time.
 - 440 (Bondi Junction to Rozelle) has the opposite problem: 40% of its arrivals were more than a minute early.
+
+## Dashboard
+
+The overview ranks routes by on-time rate and labels each one by whether it mostly runs early or late.
+
+![Least reliable routes table](docs/screenshots/routes.png)
+
+The route explorer shows one route and direction at a time: the median delay at each stop along the way, and early and late arrivals by hour. This is route 410 from Hurstville to Macquarie Park.
+
+![Route explorer for route 410](docs/screenshots/route-explorer.png)
 
 ## How it works
 
